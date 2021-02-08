@@ -2,6 +2,12 @@
 
 Stock market basic data tools.
 
+## Install
+
+```shell
+$ make install
+```
+
 ## Usage
 
 List up symbols
