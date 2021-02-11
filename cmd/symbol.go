@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"time"
 )
 
 var (
@@ -19,6 +20,7 @@ var (
   stonk symbol tokyo`,
 		Run: runCommandSymbol,
 	}
+	RetryLimit = 10
 )
 
 func init() {
@@ -57,6 +59,8 @@ func fetchTokyoTickers(tickerMapChannel chan map[string]bool) {
 	page := 1
 	re := regexp.MustCompile(`code=([\d\.\w]+)`)
 	c := colly.NewCollector()
+	c.SetRequestTimeout(time.Duration(time.Second * 60))
+	retryCount := 0
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		e.ForEach("div#contents-body-bottom table.rankingTable tbody tr", func(y int, e *colly.HTMLElement) {
@@ -92,6 +96,18 @@ func fetchTokyoTickers(tickerMapChannel chan map[string]bool) {
 
 	c.OnRequest(func(r *colly.Request) {
 		fmt.Fprintln(os.Stderr, "Visiting", r.URL.String())
+	})
+
+	c.OnResponse(func(r *colly.Response) {
+		fmt.Fprintln(os.Stderr, "Result", r.StatusCode)
+
+		if r.StatusCode != 200 {
+			if retryCount < RetryLimit {
+				retryCount++
+				fmt.Fprintln(os.Stderr, "Retry", retryCount)
+				r.Request.Retry()
+			}
+		}
 	})
 
 	err := c.Visit(fmt.Sprintf("https://info.finance.yahoo.co.jp/ranking/?kd=4&tm=d&vl=a&mk=1&p=%d", page))
