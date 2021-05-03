@@ -1,14 +1,11 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/piquette/finance-go/chart"
 	"github.com/piquette/finance-go/datetime"
 	"github.com/spf13/cobra"
 	"log"
-	"math/big"
-	"os"
 	"strings"
 	"time"
 )
@@ -26,46 +23,6 @@ var (
 	argumentEndDate   string
 	argumentRangeType string
 )
-
-type PriceCandle struct {
-	Date   datetime.Datetime `json:"date"`
-	Open   *big.Float        `json:"open"`
-	Close  *big.Float        `json:"close"`
-	High   *big.Float        `json:"high"`
-	Low    *big.Float        `json:"low"`
-	Volume int               `json:"volume"`
-}
-
-type PriceCandles []PriceCandle
-
-func (pc PriceCandle) ToTsvHeader() string {
-	return "date\topen\tclose\thigh\tlow\tvolume"
-}
-
-func (pc PriceCandle) ToTsv() string {
-	return fmt.Sprintf(
-		"%04d-%02d-%02d\t%f\t%f\t%f\t%f\t%d",
-		pc.Date.Year, pc.Date.Month, pc.Date.Day,
-		pc.Open,
-		pc.Close,
-		pc.High,
-		pc.Low,
-		pc.Volume,
-	)
-}
-
-func (pcs PriceCandles) ToTsv() []string {
-	lines := []string{PriceCandle{}.ToTsvHeader()}
-	for _, line := range pcs {
-		lines = append(lines, line.ToTsv())
-	}
-	return lines
-}
-
-func (pc PriceCandle) ToJson() string {
-	jsonValue, _ := json.Marshal(pc)
-	return string(jsonValue)
-}
 
 func init() {
 	PriceCmd.Flags().StringVarP(&argumentStartDate, "start", "s", "2000-01-01", "Start date to fetch symbol data")
@@ -109,32 +66,6 @@ func runCommandPrice(cmd *cobra.Command, args []string) {
 		End:      &endDate,
 	}
 
-	candles := fetchPriceCandles(params)
+	candles := FetchYahooPriceCandles(params)
 	fmt.Println(strings.Join(candles.ToTsv(), "\n"))
-}
-
-func fetchPriceCandles(params *chart.Params) PriceCandles {
-	iter := chart.Get(params)
-	candles := []PriceCandle{}
-
-	for iter.Next() {
-		date := time.Unix(int64(iter.Bar().Timestamp), 0)
-		datetime := datetime.Datetime{Year: date.Year(), Month: int(date.Month()), Day: date.Day()}
-		bar := iter.Bar()
-		candle := PriceCandle{
-			Date:   datetime,
-			Open:   bar.Open.BigFloat(),
-			Close:  bar.Close.BigFloat(),
-			High:   bar.High.BigFloat(),
-			Low:    bar.Low.BigFloat(),
-			Volume: bar.Volume,
-		}
-		candles = append(candles, candle)
-	}
-
-	if err := iter.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
-
-	return candles
 }
