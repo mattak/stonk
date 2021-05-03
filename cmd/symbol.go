@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"log"
 )
 
 var (
@@ -10,8 +11,9 @@ var (
 		Short: "List up symbols",
 		Long:  `List up symbols of NASDAQ`,
 		Example: `  stonk symbol
-  stonk symbol nasdaq
-  stonk symbol tosho`,
+  stonk symbol eodata-nasdaq
+  stonk symbol yahoo-tosho
+  stonk symbol datahub-nasdaq`,
 		Run: runCommandSymbol,
 	}
 	RetryLimit = 10
@@ -22,15 +24,23 @@ func init() {
 
 func runCommandSymbol(cmd *cobra.Command, args []string) {
 	symbolMapChannel := make(chan map[string]SymbolInfo)
-	marketType := "nasdaq"
+	marketType := "eodata-nasdaq"
 	if len(args) >= 1 {
 		marketType = args[0]
 	}
 
-	if marketType == "tosho" {
-		go FetchYahooToshoSymbols(symbolMapChannel)
-	} else {
+	switch marketType {
+	case "eodata-nasdaq":
 		go FetchEodataNasdaqSymbols(symbolMapChannel)
+		break;
+	case "yahoo-tosho":
+		go FetchYahooToshoSymbols(symbolMapChannel)
+		break;
+	case "datahub-nasdaq":
+		go FetchDatahubNasdaqListing(symbolMapChannel)
+		break;
+	default:
+		log.Fatalln("undefined marketType")
 	}
 
 	tickerMap := <-symbolMapChannel
