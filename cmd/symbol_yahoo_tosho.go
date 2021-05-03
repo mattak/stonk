@@ -12,8 +12,8 @@ var (
 	retryLimit = 10
 )
 
-func FetchYahooTokyoSymbols(tickerMapChannel chan map[string]bool) {
-	codes := map[string]bool{}
+func FetchYahooToshoSymbols(symbolMapChannel chan map[string]SymbolInfo) {
+	symbolMap := map[string]SymbolInfo{}
 
 	page := 1
 	re := regexp.MustCompile(`code=([\d\.\w]+)`)
@@ -24,16 +24,34 @@ func FetchYahooTokyoSymbols(tickerMapChannel chan map[string]bool) {
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		e.ForEach("div#contents-body-bottom table.rankingTable tbody tr", func(y int, e *colly.HTMLElement) {
 			line := []string{}
+			code := ""
+			info := SymbolInfo{}
+
+			// parse symbol
 			e.ForEach("td a", func(x int, e *colly.HTMLElement) {
 				link := e.Attr("href")
 				if len(link) > 0 {
 					result := re.FindAllStringSubmatch(link, -1)
 					if len(result) > 0 && len(result[0]) > 1 {
-						codes[result[0][1]] = true
+						code = result[0][1]
+						info.Symbol = code
 					}
 				}
 				line = append(line, e.Text)
 			})
+
+			// parse name
+			e.ForEach("td", func(x int, e *colly.HTMLElement) {
+				if x == 3 {
+					// string normalize
+					info.Name = NormalizeName(e.Text)
+				}
+			})
+
+			// set result
+			if len(code) > 0 {
+				symbolMap[code] = info
+			}
 		})
 
 		pageLinks := []string{}
@@ -49,7 +67,7 @@ func FetchYahooTokyoSymbols(tickerMapChannel chan map[string]bool) {
 				panic(err)
 			}
 		} else {
-			tickerMapChannel <- codes
+			symbolMapChannel <- symbolMap
 		}
 	})
 

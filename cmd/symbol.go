@@ -11,7 +11,7 @@ var (
 		Long:  `List up symbols of NASDAQ`,
 		Example: `  stonk symbol
   stonk symbol nasdaq
-  stonk symbol tokyo`,
+  stonk symbol tosho`,
 		Run: runCommandSymbol,
 	}
 	RetryLimit = 10
@@ -21,22 +21,18 @@ func init() {
 }
 
 func runCommandSymbol(cmd *cobra.Command, args []string) {
-	tickerMapChannel := make(chan map[string]bool)
+	symbolMapChannel := make(chan map[string]SymbolInfo)
 	marketType := "nasdaq"
 	if len(args) >= 1 {
 		marketType = args[0]
 	}
 
-	if marketType == "tokyo" {
-		go FetchYahooTokyoSymbols(tickerMapChannel)
+	if marketType == "tosho" {
+		go FetchYahooToshoSymbols(symbolMapChannel)
 	} else {
-		go FetchEodataNasdaqSymbols(tickerMapChannel)
+		go FetchEodataNasdaqSymbols(symbolMapChannel)
 	}
 
-	tickerMap := <-tickerMapChannel
-	tickers := []string{}
-	for key := range tickerMap {
-		tickers = append(tickers, key)
-	}
-	PrintSymbols(tickers)
+	tickerMap := <-symbolMapChannel
+	PrintSymbols(tickerMap)
 }

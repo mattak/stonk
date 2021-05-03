@@ -7,8 +7,8 @@ import (
 )
 
 // fetch nasdaq symbols
-func FetchEodataNasdaqSymbols(tickerMapChannel chan map[string]bool) {
-	tickerMap := map[string]bool{}
+func FetchEodataNasdaqSymbols(symbolMapChannel chan map[string]SymbolInfo) {
+	symbolMap := map[string]SymbolInfo{}
 	c := colly.NewCollector()
 	pages := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}
 	pageIndex := 0
@@ -16,9 +16,16 @@ func FetchEodataNasdaqSymbols(tickerMapChannel chan map[string]bool) {
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		e.ForEachWithBreak("table.quotes", func(p int, e *colly.HTMLElement) bool {
 			e.ForEach("tr", func(p int, e *colly.HTMLElement) {
+				info := SymbolInfo{}
 				e.ForEachWithBreak("td", func(p int, e *colly.HTMLElement) bool {
-					tickerMap[e.Text] = true
-					return false
+					if p == 0 {
+						info.Symbol = e.Text
+					} else if p == 1 {
+						info.Name = e.Text
+						symbolMap[info.Symbol] = info
+						return false
+					}
+					return true
 				})
 			})
 			return false
@@ -32,7 +39,7 @@ func FetchEodataNasdaqSymbols(tickerMapChannel chan map[string]bool) {
 				panic(err)
 			}
 		} else {
-			tickerMapChannel <- tickerMap
+			symbolMapChannel <- symbolMap
 		}
 	})
 
