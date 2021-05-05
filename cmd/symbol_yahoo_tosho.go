@@ -5,7 +5,6 @@ import (
 	"github.com/gocolly/colly"
 	"os"
 	"regexp"
-	"time"
 )
 
 var (
@@ -17,8 +16,7 @@ func FetchYahooToshoSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 
 	page := 1
 	re := regexp.MustCompile(`code=([\d\.\w]+)`)
-	c := colly.NewCollector()
-	c.SetRequestTimeout(time.Duration(time.Second * 60))
+	c := NewColly()
 	retryCount := 0
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {

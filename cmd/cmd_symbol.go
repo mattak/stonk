@@ -11,9 +11,9 @@ var (
 		Short: "List up symbols",
 		Long:  `List up symbols of NASDAQ`,
 		Example: `  stonk symbol
-  stonk symbol eodata-nasdaq
-  stonk symbol yahoo-tosho
-  stonk symbol datahub-nasdaq`,
+  stonk symbol eodata_nasdaq
+  stonk symbol yahoo_tosho
+  stonk symbol datahub_nasdaq`,
 		Run: runCommandSymbol,
 	}
 	RetryLimit = 10
@@ -24,19 +24,19 @@ func init() {
 
 func runCommandSymbol(cmd *cobra.Command, args []string) {
 	symbolMapChannel := make(chan map[string]SymbolInfo)
-	marketType := "eodata-nasdaq"
+	marketType := "eodata_nasdaq"
 	if len(args) >= 1 {
 		marketType = args[0]
 	}
 
 	switch marketType {
-	case "eodata-nasdaq":
+	case "eodata_nasdaq":
 		go FetchEodataNasdaqSymbols(symbolMapChannel)
 		break;
-	case "yahoo-tosho":
+	case "yahoo_tosho":
 		go FetchYahooToshoSymbols(symbolMapChannel)
 		break;
-	case "datahub-nasdaq":
+	case "datahub_nasdaq":
 		go FetchDatahubNasdaqListing(symbolMapChannel)
 		break;
 	default:

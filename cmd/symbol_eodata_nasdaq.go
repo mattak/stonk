@@ -9,7 +9,7 @@ import (
 // fetch nasdaq symbols
 func FetchEodataNasdaqSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 	symbolMap := map[string]SymbolInfo{}
-	c := colly.NewCollector()
+	c := NewColly()
 	pages := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}
 	pageIndex := 0
 
