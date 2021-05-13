@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"log"
+	"os"
 )
 
 var (
@@ -38,6 +39,13 @@ func runCommandSymbol(cmd *cobra.Command, args []string) {
 		break;
 	case "datahub_nasdaq":
 		go FetchDatahubNasdaqListing(symbolMapChannel)
+		break;
+	case "finhub":
+		apiKey := os.Getenv("FINHUB_API_KEY")
+		if len(apiKey) <= 0 {
+			log.Fatal("FINHUB_API_KEY is blank")
+		}
+		go FetchFinhubSymbols(apiKey, symbolMapChannel)
 		break;
 	default:
 		log.Fatalln("undefined marketType")
