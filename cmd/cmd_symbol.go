@@ -12,9 +12,14 @@ var (
 		Short: "List up symbols",
 		Long:  `List up symbols of NASDAQ`,
 		Example: `  stonk symbol
+  stonk symbol finhub
   stonk symbol eodata_nasdaq
   stonk symbol yahoo_tosho
-  stonk symbol datahub_nasdaq`,
+  stonk symbol datahub_nasdaq
+
+Note:
+  finhub requires environment variable: FINHUB_API_KEY
+`,
 		Run: runCommandSymbol,
 	}
 	RetryLimit = 10
