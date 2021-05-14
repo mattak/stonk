@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 )
+
 var (
 	VersionCmd = &cobra.Command{
-		Use:   "version",
-		Short: "Show version",
-		Long:  `Show version`,
+		Use:     "version",
+		Short:   "Show version",
+		Long:    `Show version`,
 		Example: ` stonk version`,
-		Run: runCommandVersion,
+		Run:     runCommandVersion,
 	}
 )
 

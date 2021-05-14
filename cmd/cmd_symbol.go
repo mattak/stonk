@@ -38,20 +38,20 @@ func runCommandSymbol(cmd *cobra.Command, args []string) {
 	switch marketType {
 	case "eodata_nasdaq":
 		go FetchEodataNasdaqSymbols(symbolMapChannel)
-		break;
+		break
 	case "yahoo_tosho":
 		go FetchYahooToshoSymbols(symbolMapChannel)
-		break;
+		break
 	case "datahub_nasdaq":
 		go FetchDatahubNasdaqListing(symbolMapChannel)
-		break;
+		break
 	case "finhub":
 		apiKey := os.Getenv("FINHUB_API_KEY")
 		if len(apiKey) <= 0 {
 			log.Fatal("FINHUB_API_KEY is blank")
 		}
 		go FetchFinhubSymbols(apiKey, symbolMapChannel)
-		break;
+		break
 	default:
 		log.Fatalln("undefined marketType")
 	}
