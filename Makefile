@@ -18,6 +18,10 @@ clean:
 	$(GOCLEAN)
 	rm -rf $(BINARY_DIR)
 
+.PHONY: test
+test:
+	$(GOTEST) -v ./test
+
 .PHONY: install
 install:
 	$(GOINSTALL)
