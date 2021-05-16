@@ -27,7 +27,7 @@ func FetchYahooEtfSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 				if x == 0 {
 					matches := re.FindStringSubmatch(e.Text)
 					if matches != nil && len(matches) > 0 {
-						code = matches[1]
+						code = matches[1] + ".t"
 						info.Symbol = code
 					}
 					return true
