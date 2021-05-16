@@ -15,7 +15,8 @@ var (
   stonk symbol finhub_us
   stonk symbol finhub_t
   stonk symbol eodata_nasdaq
-  stonk symbol yahoo_tosho
+  stonk symbol yahoo_kabu
+  stonk symbol yahoo_etf
   stonk symbol datahub_nasdaq
 
 Note:
@@ -42,8 +43,11 @@ func runCommandSymbol(cmd *cobra.Command, args []string) {
 	case "eodata_nasdaq":
 		go FetchEodataNasdaqSymbols(symbolMapChannel)
 		break
-	case "yahoo_tosho":
-		go FetchYahooToshoSymbols(symbolMapChannel)
+	case "yahoo_kabu":
+		go FetchYahooKabuSymbols(symbolMapChannel)
+		break
+	case "yahoo_etf":
+		go FetchYahooEtfSymbols(symbolMapChannel)
 		break
 	case "datahub_nasdaq":
 		go FetchDatahubNasdaqListing(symbolMapChannel)

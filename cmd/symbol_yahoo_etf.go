@@ -7,40 +7,38 @@ import (
 	"regexp"
 )
 
-var (
-	retryLimit = 10
-)
-
-func FetchYahooToshoSymbols(symbolMapChannel chan map[string]SymbolInfo) {
+func FetchYahooEtfSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 	symbolMap := map[string]SymbolInfo{}
 
 	page := 1
-	re := regexp.MustCompile(`code=([\d\.\w]+)`)
+	re := regexp.MustCompile(`^(\d{4})$`)
 	c := NewColly()
 	retryCount := 0
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {
-		e.ForEach("div#contents-body-bottom table.rankingTable tbody tr", func(y int, e *colly.HTMLElement) {
-			line := []string{}
+		//list = Array.from(document.querySelectorAll(''))
+
+		e.ForEach("div#etf_list table tbody tr", func(y int, e *colly.HTMLElement) {
 			code := ""
 			info := SymbolInfo{}
 
 			// parse symbol
-			e.ForEach("td a", func(x int, e *colly.HTMLElement) {
-				link := e.Attr("href")
-				if len(link) > 0 {
-					result := re.FindAllStringSubmatch(link, -1)
-					if len(result) > 0 && len(result[0]) > 1 {
-						code = result[0][1]
+			e.ForEachWithBreak("td a", func(x int, e *colly.HTMLElement) bool {
+				if x == 0 {
+					matches := re.FindStringSubmatch(e.Text)
+					if matches != nil && len(matches) > 0 {
+						code = matches[1]
 						info.Symbol = code
 					}
+					return true
 				}
-				line = append(line, e.Text)
+
+				return false
 			})
 
 			// parse name
 			e.ForEach("td", func(x int, e *colly.HTMLElement) {
-				if x == 3 {
+				if x == 2 {
 					// string normalize
 					info.Name = NormalizeName(e.Text)
 				}
@@ -52,14 +50,15 @@ func FetchYahooToshoSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 			}
 		})
 
-		pageLinks := []string{}
-		e.ForEach("div#contents-body-bottom ul.ymuiPagingBottom a", func(y int, e *colly.HTMLElement) {
-			pageLinks = append(pageLinks, e.Text)
+		pageLink := ""
+		e.ForEachWithBreak("div#etf_list div.ymuiPagingTop a.ymuiNext", func(y int, e *colly.HTMLElement) bool {
+			pageLink = e.Text
+			return true
 		})
 
-		if pageLinks[len(pageLinks)-1] == "次へ" {
+		if pageLink == "次のページ" {
 			page++
-			url := fmt.Sprintf("https://info.finance.yahoo.co.jp/ranking/?kd=4&tm=d&vl=a&mk=1&p=%d", page)
+			url := fmt.Sprintf("https://stocks.finance.yahoo.co.jp/etf/list/?p=%d", page)
 			err := e.Request.Visit(url)
 			if err != nil {
 				panic(err)
@@ -85,7 +84,7 @@ func FetchYahooToshoSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 		}
 	})
 
-	err := c.Visit(fmt.Sprintf("https://info.finance.yahoo.co.jp/ranking/?kd=4&tm=d&vl=a&mk=1&p=%d", page))
+	err := c.Visit(fmt.Sprintf("https://stocks.finance.yahoo.co.jp/etf/list/?p=%d", page))
 	if err != nil {
 		panic(err)
 	}
