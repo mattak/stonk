@@ -11,6 +11,7 @@ var (
 		Short: "List up symbols",
 		Long:  `List up symbols of NASDAQ`,
 		Example: `  stonk symbol
+  stonk symbol jpx
   stonk symbol finhub_us
   stonk symbol finhub_t
   stonk symbol eodata_nasdaq
@@ -53,10 +54,13 @@ func runCommandSymbol(cmd *cobra.Command, args []string) {
 		apiKey := LoadEnv("FINHUB_API_KEY")
 		go FetchFinhubSymbols(apiKey, "T", symbolMapChannel)
 		break
+	case "jpx":
+		go FetchJpxSymbols(symbolMapChannel)
+		break
 	default:
 		log.Fatalln("undefined marketType")
 	}
 
-	tickerMap := <-symbolMapChannel
-	PrintSymbols(tickerMap)
+	symbolMap := <-symbolMapChannel
+	PrintSymbols(symbolMap)
 }

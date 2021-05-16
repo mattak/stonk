@@ -3,7 +3,7 @@ module github.com/mattak/stonk/cmd
 go 1.14
 
 require (
-	github.com/Finnhub-Stock-API/finnhub-go v1.2.1 // indirect
+	github.com/Finnhub-Stock-API/finnhub-go v1.2.1
 	github.com/PuerkitoBio/goquery v1.6.1 // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/antchfx/htmlquery v1.2.3 // indirect
@@ -13,7 +13,7 @@ require (
 	github.com/gocolly/colly v1.2.0
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
-	github.com/ktnyt/go-moji v1.0.0 // indirect
+	github.com/ktnyt/go-moji v1.0.0
 	github.com/piquette/finance-go v1.0.0
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect

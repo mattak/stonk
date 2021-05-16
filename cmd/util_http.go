@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/gocolly/colly"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -28,4 +30,22 @@ func DoHttpGetRequest(url string) *http.Response {
 	}
 
 	return res
+}
+
+func DownloadFile(url string, filePath string, content chan []byte) {
+	c := NewColly()
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Fprintln(os.Stderr, "Visiting", r.URL.String())
+	})
+	c.OnResponse(func(r *colly.Response) {
+		err := r.Save(filePath)
+		if err != nil {
+			panic(err)
+		}
+		content <- r.Body
+	})
+	err := c.Visit(url)
+	if err != nil {
+		panic(err)
+	}
 }
