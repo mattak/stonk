@@ -9,7 +9,7 @@ var (
 	SymbolCmd = &cobra.Command{
 		Use:   "symbol [DATASOURCE]",
 		Short: "List up symbols",
-		Long:  `List up symbols of NASDAQ`,
+		Long:  `List up symbols`,
 		Example: `  stonk symbol
   stonk symbol jpx
   stonk symbol finhub_us
@@ -23,10 +23,12 @@ Note:
 `,
 		Run: runCommandSymbol,
 	}
-	RetryLimit = 10
+	RetryLimit   = 10
+	outputFormat = "tsv"
 )
 
 func init() {
+	SymbolCmd.Flags().StringVarP(&outputFormat, "format", "f", "tsv", "Output format: tsv(default), json")
 }
 
 func runCommandSymbol(cmd *cobra.Command, args []string) {
@@ -62,5 +64,5 @@ func runCommandSymbol(cmd *cobra.Command, args []string) {
 	}
 
 	symbolMap := <-symbolMapChannel
-	PrintSymbols(symbolMap)
+	PrintSymbols(symbolMap, outputFormat)
 }

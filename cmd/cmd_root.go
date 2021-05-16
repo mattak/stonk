@@ -9,6 +9,7 @@ var (
 		Use:   "stonk",
 		Short: "Stock market related tools",
 		Long:  `Stock market related tools`,
+		Version: VERSION,
 	}
 )
 
