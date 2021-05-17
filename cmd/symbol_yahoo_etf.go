@@ -16,8 +16,6 @@ func FetchYahooEtfSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 	retryCount := 0
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {
-		//list = Array.from(document.querySelectorAll(''))
-
 		e.ForEach("div#etf_list table tbody tr", func(y int, e *colly.HTMLElement) {
 			code := ""
 			info := SymbolInfo{}
