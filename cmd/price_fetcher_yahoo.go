@@ -1,14 +1,12 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/piquette/finance-go/chart"
 	"github.com/piquette/finance-go/datetime"
-	"os"
 	"time"
 )
 
-func FetchYahooPriceCandles(params *chart.Params) PriceCandles {
+func FetchYahooPriceCandles(params *chart.Params) (PriceCandles, error) {
 	iter := chart.Get(params)
 	candles := []PriceCandle{}
 
@@ -28,8 +26,8 @@ func FetchYahooPriceCandles(params *chart.Params) PriceCandles {
 	}
 
 	if err := iter.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		return nil, err
 	}
 
-	return candles
+	return candles, nil
 }

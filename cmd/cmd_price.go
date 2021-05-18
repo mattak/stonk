@@ -6,6 +6,7 @@ import (
 	"github.com/piquette/finance-go/datetime"
 	"github.com/spf13/cobra"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
@@ -66,6 +67,10 @@ func runCommandPrice(cmd *cobra.Command, args []string) {
 		End:      &endDate,
 	}
 
-	candles := FetchYahooPriceCandles(params)
+	candles, err := FetchYahooPriceCandles(params)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "ERROR: fetching yahoo prices: ", tickerSymbol)
+		log.Fatalln(err)
+	}
 	fmt.Println(strings.Join(candles.ToTsv(), "\n"))
 }
