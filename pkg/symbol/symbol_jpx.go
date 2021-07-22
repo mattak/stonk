@@ -1,8 +1,9 @@
-package cmd
+package symbol
 
 import (
 	"fmt"
 	"github.com/gocolly/colly"
+	"github.com/mattak/stonk/pkg/util"
 	"os"
 )
 
@@ -34,12 +35,12 @@ func FetchJpxSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 
 	xlsPath := "/tmp/jpx.xls"
 	csvPath := "/tmp/jpx.csv"
-	go DownloadFile(url, xlsPath, bodyChannel)
+	go util.DownloadFile(url, xlsPath, bodyChannel)
 	<-bodyChannel
 	fmt.Fprintln(os.Stderr, "File: ", csvPath)
 
-	ConvertXlsFileToCsvFile(xlsPath, csvPath)
-	data := ReadCsv(csvPath)
+	util.ConvertXlsFileToCsvFile(xlsPath, csvPath)
+	data := util.ReadCsv(csvPath)
 	symbolMap = createSymbolInfo(data)
 
 	symbolMapChannel <- symbolMap
@@ -51,8 +52,8 @@ func createSymbolInfo(data [][]string) map[string]SymbolInfo {
 	for i := 0; i < len(data)-1; i++ {
 		//date := data[i+1][0]
 		code := data[i+1][1]
-		name := NormalizeName(data[i+1][2])
-		market := MarketType(NormalizeName(data[i+1][3]))
+		name := util.NormalizeName(data[i+1][2])
+		market := MarketType(util.NormalizeName(data[i+1][3]))
 		if market == MarketType_Jpx_Investment || market == MarketType_Jpx_ProMarket {
 			continue
 		}
@@ -72,7 +73,7 @@ func createSymbolInfo(data [][]string) map[string]SymbolInfo {
 
 func fetchJpxSymbolExcelLinkUrl(url chan string) {
 	href := ""
-	c := NewColly()
+	c := util.NewColly()
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		e.ForEachWithBreak("div#readArea table tbody tr td a", func(p int, e *colly.HTMLElement) bool {

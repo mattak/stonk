@@ -1,12 +1,13 @@
-package cmd
+package symbol
 
 import (
 	"encoding/csv"
+	"github.com/mattak/stonk/pkg/util"
 )
 
 func FetchDatahubNasdaqListing(symbolMapChannel chan map[string]SymbolInfo) {
 	url := "https://datahub.io/core/nasdaq-listings/r/nasdaq-listed.csv"
-	res := DoHttpGetRequest(url)
+	res := util.DoHttpGetRequest(url)
 	defer res.Body.Close()
 
 	csvreader := csv.NewReader(res.Body)

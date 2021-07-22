@@ -1,8 +1,9 @@
-package cmd
+package symbol
 
 import (
 	"context"
-	finnhub "github.com/Finnhub-Stock-API/finnhub-go"
+	"github.com/Finnhub-Stock-API/finnhub-go"
+	"github.com/mattak/stonk/pkg/util"
 )
 
 func FilterFinhubSymbols(exchange string, dic *map[string]SymbolInfo) {
@@ -10,7 +11,7 @@ func FilterFinhubSymbols(exchange string, dic *map[string]SymbolInfo) {
 		delete_keys := make([]string, 0, len(*dic))
 
 		for key, _ := range *dic {
-			if IsTokyoNoiseSymbol(key) {
+			if util.IsTokyoNoiseSymbol(key) {
 				delete_keys = append(delete_keys, key)
 			}
 		}

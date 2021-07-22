@@ -1,15 +1,16 @@
-package cmd
+package symbol
 
 import (
 	"fmt"
 	"github.com/gocolly/colly"
+	"github.com/mattak/stonk/pkg/util"
 	"os"
 )
 
 // fetch nasdaq symbols
 func FetchEodataNasdaqSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 	symbolMap := map[string]SymbolInfo{}
-	c := NewColly()
+	c := util.NewColly()
 	pages := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}
 	pageIndex := 0
 

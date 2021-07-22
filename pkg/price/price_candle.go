@@ -1,4 +1,4 @@
-package cmd
+package price
 
 import (
 	"encoding/json"

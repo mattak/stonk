@@ -1,4 +1,4 @@
-package cmd
+package symbol
 
 type SymbolInfo struct {
 	Symbol string `json:"symbol"`

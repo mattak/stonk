@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/mattak/stonk/cmd"
+	"github.com/mattak/stonk/pkg/util"
 	"testing"
 )
 
@@ -23,7 +23,7 @@ func TestNormalizeName(t *testing.T) {
 		"JASDAQ(グロース・内国株)",
 	}
 	for i := 0; i < len(realNames); i++ {
-		normalizedName := cmd.NormalizeName(realNames[i])
+		normalizedName := util.NormalizeName(realNames[i])
 		if normalizedName != expectNames[i] {
 			t.Fatalf("normalize name failed: %s <=> %s\n", normalizedName, expectNames[i])
 		}

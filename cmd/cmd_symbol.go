@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/mattak/stonk/pkg/symbol"
+	"github.com/mattak/stonk/pkg/util"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -33,7 +35,7 @@ func init() {
 }
 
 func runCommandSymbol(cmd *cobra.Command, args []string) {
-	symbolMapChannel := make(chan map[string]SymbolInfo)
+	symbolMapChannel := make(chan map[string]symbol.SymbolInfo)
 	marketType := "eodata_nasdaq"
 	if len(args) >= 1 {
 		marketType = args[0]
@@ -41,32 +43,32 @@ func runCommandSymbol(cmd *cobra.Command, args []string) {
 
 	switch marketType {
 	case "eodata_nasdaq":
-		go FetchEodataNasdaqSymbols(symbolMapChannel)
+		go symbol.FetchEodataNasdaqSymbols(symbolMapChannel)
 		break
 	case "yahoo_kabu":
-		go FetchYahooKabuSymbols(symbolMapChannel)
+		go symbol.FetchYahooKabuSymbols(symbolMapChannel)
 		break
 	case "yahoo_etf":
-		go FetchYahooEtfSymbols(symbolMapChannel)
+		go symbol.FetchYahooEtfSymbols(symbolMapChannel)
 		break
 	case "datahub_nasdaq":
-		go FetchDatahubNasdaqListing(symbolMapChannel)
+		go symbol.FetchDatahubNasdaqListing(symbolMapChannel)
 		break
 	case "finhub_us":
-		apiKey := LoadEnv("FINHUB_API_KEY")
-		go FetchFinhubSymbols(apiKey, "US", symbolMapChannel)
+		apiKey := util.LoadEnv("FINHUB_API_KEY")
+		go symbol.FetchFinhubSymbols(apiKey, "US", symbolMapChannel)
 		break
 	case "finhub_t":
-		apiKey := LoadEnv("FINHUB_API_KEY")
-		go FetchFinhubSymbols(apiKey, "T", symbolMapChannel)
+		apiKey := util.LoadEnv("FINHUB_API_KEY")
+		go symbol.FetchFinhubSymbols(apiKey, "T", symbolMapChannel)
 		break
 	case "jpx":
-		go FetchJpxSymbols(symbolMapChannel)
+		go symbol.FetchJpxSymbols(symbolMapChannel)
 		break
 	default:
 		log.Fatalln("undefined marketType")
 	}
 
 	symbolMap := <-symbolMapChannel
-	PrintSymbols(symbolMap, outputFormat)
+	symbol.PrintSymbols(symbolMap, outputFormat)
 }

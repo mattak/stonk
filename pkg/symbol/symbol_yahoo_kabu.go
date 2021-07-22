@@ -1,8 +1,9 @@
-package cmd
+package symbol
 
 import (
 	"fmt"
 	"github.com/gocolly/colly"
+	"github.com/mattak/stonk/pkg/util"
 	"os"
 	"regexp"
 )
@@ -16,7 +17,7 @@ func FetchYahooKabuSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 
 	page := 1
 	re := regexp.MustCompile(`code=([\d\.\w]+)`)
-	c := NewColly()
+	c := util.NewColly()
 	retryCount := 0
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {
@@ -42,7 +43,7 @@ func FetchYahooKabuSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 			e.ForEach("td", func(x int, e *colly.HTMLElement) {
 				if x == 3 {
 					// string normalize
-					info.Name = NormalizeName(e.Text)
+					info.Name = util.NormalizeName(e.Text)
 				}
 			})
 

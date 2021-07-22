@@ -1,8 +1,9 @@
-package cmd
+package symbol
 
 import (
 	"fmt"
 	"github.com/gocolly/colly"
+	"github.com/mattak/stonk/pkg/util"
 	"os"
 	"regexp"
 )
@@ -12,7 +13,7 @@ func FetchYahooEtfSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 
 	page := 1
 	re := regexp.MustCompile(`^(\d{4})$`)
-	c := NewColly()
+	c := util.NewColly()
 	retryCount := 0
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {
@@ -38,7 +39,7 @@ func FetchYahooEtfSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 			e.ForEach("td", func(x int, e *colly.HTMLElement) {
 				if x == 2 {
 					// string normalize
-					info.Name = NormalizeName(e.Text)
+					info.Name = util.NormalizeName(e.Text)
 				}
 			})
 

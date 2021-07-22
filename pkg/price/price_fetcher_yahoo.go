@@ -1,4 +1,4 @@
-package cmd
+package price
 
 import (
 	"github.com/piquette/finance-go/chart"

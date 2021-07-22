@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/mattak/stonk/pkg/price"
 	"github.com/piquette/finance-go/chart"
 	"github.com/piquette/finance-go/datetime"
 	"github.com/spf13/cobra"
@@ -67,7 +68,7 @@ func runCommandPrice(cmd *cobra.Command, args []string) {
 		End:      &endDate,
 	}
 
-	candles, err := FetchYahooPriceCandles(params)
+	candles, err := price.FetchYahooPriceCandles(params)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ERROR: fetching yahoo prices: ", tickerSymbol)
 		log.Fatalln(err)
