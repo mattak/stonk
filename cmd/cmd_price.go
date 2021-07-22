@@ -68,7 +68,7 @@ func runCommandPrice(cmd *cobra.Command, args []string) {
 		End:      &endDate,
 	}
 
-	candles, err := price.FetchYahooPriceCandles(params)
+	candles, err := price.FetchYahooPriceCandlesWithRetry(params, 3)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ERROR: fetching yahoo prices: ", tickerSymbol)
 		log.Fatalln(err)
