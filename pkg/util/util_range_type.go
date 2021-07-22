@@ -36,9 +36,15 @@ func ParseRangeType(text string) (*RangeType, error) {
 	if err != nil {
 		return nil, err
 	}
+	if sampleLength < 1 {
+		return nil, errors.New("RangeType Sampling Length should be greater than 1")
+	}
 	rangeLength, err := strconv.ParseInt(match[3], 10, 64)
 	if err != nil {
 		return nil, err
+	}
+	if rangeLength < 1 {
+		return nil, errors.New("RangeType Range Length should be greater than 1")
 	}
 
 	return &RangeType{

@@ -41,7 +41,7 @@ func runCommandPrice(cmd *cobra.Command, args []string) {
 	tickerSymbol := args[0]
 	rangeType, err := util.ParseRangeType(argumentRangeType)
 	if err != nil {
-		log.Fatalln("ERROR: parse RangeType", argumentRangeType, err)
+		log.Fatalln("ERROR: parse RangeType: ", argumentRangeType, err)
 	}
 
 	params := util.CreateChartParamByRangeType(tickerSymbol, *rangeType)
