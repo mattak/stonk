@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/mattak/stonk/pkg/price"
-	"github.com/piquette/finance-go/chart"
+	"github.com/mattak/stonk/pkg/util"
 	"github.com/piquette/finance-go/datetime"
 	"github.com/spf13/cobra"
 	"log"
@@ -18,7 +18,9 @@ var (
 		Short: "Fetch historical price data",
 		Long:  `Fetch historical price data from yahoo finance`,
 		Example: `  stonk price AAPL
-  stonk price -s 2020-12-01 -e 2021-02-01 -r day U`,
+  stonk price -r 1D30D AAPL
+  stonk price -r 1M1Y -s 2020-12-01 -e 2021-02-01 U
+`,
 		Run: runCommandPrice,
 	}
 	argumentStartDate string
@@ -27,21 +29,9 @@ var (
 )
 
 func init() {
-	PriceCmd.Flags().StringVarP(&argumentStartDate, "start", "s", "2000-01-01", "Start date to fetch symbol data")
-	PriceCmd.Flags().StringVarP(&argumentEndDate, "end", "e", "", "End date to fetch symbol data")
-	PriceCmd.Flags().StringVarP(&argumentRangeType, "range", "r", "month", "Interval type, month or day")
-}
-
-func parseDate(dateString string, defaultValue datetime.Datetime) datetime.Datetime {
-	dateLayout := "2006-01-02"
-	if len(dateString) < 1 {
-		return defaultValue
-	}
-	if t, err := time.Parse(dateLayout, dateString); err != nil {
-		panic(err)
-	} else {
-		return datetime.Datetime{Year: t.Year(), Month: int(t.Month()), Day: t.Day()}
-	}
+	PriceCmd.Flags().StringVarP(&argumentStartDate, "start", "s", "", "Start date to fetch symbol data. e.g. 2000-01-01")
+	PriceCmd.Flags().StringVarP(&argumentEndDate, "end", "e", "", "End date to fetch symbol data. e.g. 2021-01-01")
+	PriceCmd.Flags().StringVarP(&argumentRangeType, "range", "r", "1D30D", "Range type, format: '[0-9]+(D|W|M|Q|Y)[0-9]+(D|W|M|Q|Y)' e.g. 1D30D, 1W3Q, 1M1Y, ...")
 }
 
 func runCommandPrice(cmd *cobra.Command, args []string) {
@@ -49,26 +39,23 @@ func runCommandPrice(cmd *cobra.Command, args []string) {
 		log.Fatal("ERROR: please specify ticker symbol")
 	}
 	tickerSymbol := args[0]
-
-	t := time.Now()
-	startDate := parseDate(argumentStartDate, datetime.Datetime{Year: 2000, Month: 01, Day: 01})
-	endDate := parseDate(argumentEndDate, datetime.Datetime{Year: t.Year(), Month: int(t.Month()), Day: t.Day()})
-
-	var interval datetime.Interval
-	if argumentRangeType == "day" {
-		interval = datetime.OneDay
-	} else {
-		interval = datetime.OneMonth
+	rangeType, err := util.ParseRangeType(argumentRangeType)
+	if err != nil {
+		log.Fatalln("ERROR: parse RangeType", argumentRangeType, err)
 	}
 
-	params := &chart.Params{
-		Symbol:   tickerSymbol,
-		Interval: interval,
-		Start:    &startDate,
-		End:      &endDate,
+	params := util.CreateChartParamByRangeType(tickerSymbol, *rangeType)
+	if argumentStartDate != "" {
+		startDatetime := util.ParseDatetime(argumentStartDate, datetime.Datetime{Year: 2000, Month: 01, Day: 01})
+		params.Start = &startDatetime
+	}
+	if argumentEndDate != "" {
+		t := time.Now()
+		endDatetime := util.ParseDatetime(argumentEndDate, datetime.Datetime{Year: t.Year(), Month: int(t.Month()), Day: t.Day()})
+		params.End = &endDatetime
 	}
 
-	candles, err := price.FetchYahooPriceCandlesWithRetry(params, 3)
+	candles, err := price.FetchYahooPriceCandles(&params, rangeType, 3)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ERROR: fetching yahoo prices: ", tickerSymbol)
 		log.Fatalln(err)

@@ -3,6 +3,7 @@ package price
 import (
 	"errors"
 	"fmt"
+	"github.com/mattak/stonk/pkg/util"
 	"github.com/piquette/finance-go/chart"
 	"github.com/piquette/finance-go/datetime"
 	"os"
@@ -10,11 +11,19 @@ import (
 	"time"
 )
 
-func FetchYahooPriceCandlesWithRetry(params *chart.Params, retryCount int) (PriceCandles, error) {
+func FetchYahooPriceCandles(params *chart.Params, rangeType *util.RangeType, retryCount int) (PriceCandles, error) {
+	candles, err := fetchYahooPriceCandlesWithRetry(params, retryCount)
+	if err != nil {
+		return nil, err
+	}
+	return candles.Reduce(rangeType.SampleUnit, rangeType.SampleLength), nil
+}
+
+func fetchYahooPriceCandlesWithRetry(params *chart.Params, retryCount int) (PriceCandles, error) {
 	waitTime := time.Duration(1)
 
 	for retryCount > 0 {
-		candles, err := FetchYahooPriceCandles(params)
+		candles, err := fetchYahooPriceCandlesWithoutRetry(params)
 		if err == nil {
 			return candles, nil
 		}
@@ -36,7 +45,7 @@ func FetchYahooPriceCandlesWithRetry(params *chart.Params, retryCount int) (Pric
 	return nil, errors.New(fmt.Sprintf("unexpected error with retryCount %d", retryCount))
 }
 
-func FetchYahooPriceCandles(params *chart.Params) (PriceCandles, error) {
+func fetchYahooPriceCandlesWithoutRetry(params *chart.Params) (PriceCandles, error) {
 	iter := chart.Get(params)
 	var candles []PriceCandle
 
@@ -50,7 +59,7 @@ func FetchYahooPriceCandles(params *chart.Params) (PriceCandles, error) {
 			Close:  bar.Close.BigFloat(),
 			High:   bar.High.BigFloat(),
 			Low:    bar.Low.BigFloat(),
-			Volume: bar.Volume,
+			Volume: int64(bar.Volume),
 		}
 		candles = append(candles, candle)
 	}

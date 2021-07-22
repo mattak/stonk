@@ -3,8 +3,11 @@ package price
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mattak/stonk/pkg/util"
 	"github.com/piquette/finance-go/datetime"
 	"math/big"
+	"sort"
+	"time"
 )
 
 type PriceCandle struct {
@@ -13,7 +16,7 @@ type PriceCandle struct {
 	Close  *big.Float        `json:"close"`
 	High   *big.Float        `json:"high"`
 	Low    *big.Float        `json:"low"`
-	Volume int               `json:"volume"`
+	Volume int64             `json:"volume"`
 }
 
 type PriceCandles []PriceCandle
@@ -45,4 +48,86 @@ func (pcs PriceCandles) ToTsv() []string {
 func (pc PriceCandle) ToJson() string {
 	jsonValue, _ := json.Marshal(pc)
 	return string(jsonValue)
+}
+
+func (pcs PriceCandles) SortByDate() {
+	sort.SliceStable(pcs, func(i, j int) bool { return pcs[i].Date.Unix() < pcs[i].Date.Unix() })
+}
+
+func (pcs PriceCandles) SummarizeRange(date datetime.Datetime, startIndex, endIndex int) PriceCandle {
+	_open := pcs[startIndex].Open
+	_close := pcs[endIndex].Close
+	_high := pcs[startIndex].High
+	_low := pcs[startIndex].Low
+	_volume := pcs[startIndex].Volume
+
+	for i := startIndex + 1; i <= endIndex; i++ {
+		if pcs[i].High.Cmp(_high) > 0 {
+			_high = pcs[i].High
+		}
+		if pcs[i].Low.Cmp(_low) < 0 {
+			_low = pcs[i].Low
+		}
+		_volume += pcs[i].Volume
+	}
+
+	return PriceCandle{
+		Date:   date,
+		Open:   _open,
+		Close:  _close,
+		High:   _high,
+		Low:    _low,
+		Volume: _volume,
+	}
+}
+
+func (pcs PriceCandles) ReduceByRange(nextDate func(curr time.Time) time.Time) PriceCandles {
+	if len(pcs) < 1 {
+		return PriceCandles{}
+	}
+
+	minDate := pcs[0].Date.Time().UTC()
+	maxDate := pcs[len(pcs)-1].Date.Time().UTC()
+
+	startIndex := 0
+	current := minDate
+	next := nextDate(current)
+
+	candles := []PriceCandle{}
+
+	for current.Unix() <= maxDate.Unix() && startIndex < len(pcs) {
+		endIndex := -1
+		for i := startIndex; i < len(pcs); i++ {
+			date := pcs[i].Date.Time().UTC()
+			if current.Unix() <= date.Unix() && date.Unix() < next.Unix() {
+				endIndex = i
+			} else {
+				break
+			}
+		}
+		if endIndex == -1 {
+			current = next
+			next = nextDate(current)
+			continue
+		}
+
+		startDatetime := datetime.Datetime{
+			Year:  current.Year(),
+			Month: int(current.Month()),
+			Day:   current.Day(),
+		}
+		candle := pcs.SummarizeRange(startDatetime, startIndex, endIndex)
+		candles = append(candles, candle)
+
+		current = next
+		next = nextDate(current)
+		startIndex = endIndex + 1
+	}
+
+	return candles
+}
+
+func (pcs PriceCandles) Reduce(unit string, length int) PriceCandles {
+	f := util.GetNextRangeDateFunction(unit, length)
+	return pcs.ReduceByRange(f)
 }

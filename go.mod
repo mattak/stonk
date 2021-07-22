@@ -17,6 +17,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	golang.org/x/net v0.0.0-20210716203947-853a461950ff // indirect
+	github.com/stretchr/testify v1.7.0
 )
 
 replace github.com/mattak/stonk/cmd => ./cmd
