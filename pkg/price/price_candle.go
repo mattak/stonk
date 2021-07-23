@@ -81,7 +81,7 @@ func (pcs PriceCandles) SummarizeRange(date datetime.Datetime, startIndex, endIn
 	}
 }
 
-func (pcs PriceCandles) ReduceByRange(nextDate func(curr time.Time) time.Time) PriceCandles {
+func (pcs PriceCandles) ReduceSampleByNextDate(nextDate func(curr time.Time) time.Time) PriceCandles {
 	if len(pcs) < 1 {
 		return PriceCandles{}
 	}
@@ -127,7 +127,17 @@ func (pcs PriceCandles) ReduceByRange(nextDate func(curr time.Time) time.Time) P
 	return candles
 }
 
-func (pcs PriceCandles) Reduce(unit string, length int) PriceCandles {
+func (pcs PriceCandles) ReduceSample(unit string, length int) PriceCandles {
 	f := util.GetNextRangeDateFunction(unit, length)
-	return pcs.ReduceByRange(f)
+	return pcs.ReduceSampleByNextDate(f)
+}
+
+func (pcs PriceCandles) ReduceRange(fromDatetime, toDatetime datetime.Datetime) PriceCandles {
+	candles := PriceCandles{}
+	for _, pc := range pcs {
+		if fromDatetime.Unix() <= pc.Date.Unix() && pc.Date.Unix() <= toDatetime.Unix() {
+			candles = append(candles, pc)
+		}
+	}
+	return candles
 }

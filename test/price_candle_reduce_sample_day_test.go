@@ -8,10 +8,10 @@ import (
 	"testing"
 )
 
-func TestReduceDay(t *testing.T) {
+func TestReduceSampleDay(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		pcs := price.PriceCandles{}
-		result := pcs.Reduce("D", 1)
+		result := pcs.ReduceSample("D", 1)
 		assert.Equal(t, len(result), 0)
 	})
 	t.Run("1 point", func(t *testing.T) {
@@ -25,7 +25,7 @@ func TestReduceDay(t *testing.T) {
 				Volume: int64(1),
 			},
 		}
-		result := pcs.Reduce("D", 1)
+		result := pcs.ReduceSample("D", 1)
 		assert.Equal(t, len(result), 1)
 		assert.Equal(t, result[0].Open, big.NewFloat(2))
 		assert.Equal(t, result[0].Close, big.NewFloat(4))
@@ -52,7 +52,7 @@ func TestReduceDay(t *testing.T) {
 				Volume: int64(2),
 			},
 		}
-		result := pcs.Reduce("D", 1)
+		result := pcs.ReduceSample("D", 1)
 		assert.Equal(t, len(result), 2)
 		assert.Equal(t, result[0].Open, big.NewFloat(2))
 		assert.Equal(t, result[0].Close, big.NewFloat(4))
@@ -85,7 +85,7 @@ func TestReduceDay(t *testing.T) {
 				Volume: int64(2),
 			},
 		}
-		result := pcs.Reduce("D", 1)
+		result := pcs.ReduceSample("D", 1)
 		assert.Equal(t, len(result), 2)
 		assert.Equal(t, result[0].Date.Year, 2020)
 		assert.Equal(t, result[0].Date.Month, 1)

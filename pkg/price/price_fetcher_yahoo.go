@@ -16,7 +16,7 @@ func FetchYahooPriceCandles(params *chart.Params, rangeType *util.RangeType, ret
 	if err != nil {
 		return nil, err
 	}
-	return candles.Reduce(rangeType.SampleUnit, rangeType.SampleLength), nil
+	return candles.ReduceSample(rangeType.SampleUnit, rangeType.SampleLength), nil
 }
 
 func fetchYahooPriceCandlesWithRetry(params *chart.Params, retryCount int) (PriceCandles, error) {

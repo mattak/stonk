@@ -46,12 +46,12 @@ func runCommandPrice(cmd *cobra.Command, args []string) {
 
 	params := util.CreateChartParamByRangeType(tickerSymbol, *rangeType)
 	if argumentStartDate != "" {
-		startDatetime := util.ParseDatetime(argumentStartDate, datetime.Datetime{Year: 2000, Month: 01, Day: 01})
+		startDatetime := util.ParseDatetimeOrDefault(argumentStartDate, datetime.Datetime{Year: 2000, Month: 01, Day: 01})
 		params.Start = &startDatetime
 	}
 	if argumentEndDate != "" {
 		t := time.Now()
-		endDatetime := util.ParseDatetime(argumentEndDate, datetime.Datetime{Year: t.Year(), Month: int(t.Month()), Day: t.Day()})
+		endDatetime := util.ParseDatetimeOrDefault(argumentEndDate, datetime.Datetime{Year: t.Year(), Month: int(t.Month()), Day: t.Day()})
 		params.End = &endDatetime
 	}
 

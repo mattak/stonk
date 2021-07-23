@@ -6,9 +6,9 @@ import (
 
 var (
 	RootCmd = &cobra.Command{
-		Use:   "stonk",
-		Short: "Stock market related tools",
-		Long:  `Stock market related tools`,
+		Use:     "stonk",
+		Short:   "Stock market related tools",
+		Long:    `Stock market related tools`,
 		Version: VERSION,
 	}
 )
@@ -21,4 +21,5 @@ func init() {
 	RootCmd.AddCommand(VersionCmd)
 	RootCmd.AddCommand(SymbolCmd)
 	RootCmd.AddCommand(PriceCmd)
+	RootCmd.AddCommand(ReshapeCmd)
 }

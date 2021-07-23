@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func ParseDatetime(dateString string, defaultValue datetime.Datetime) datetime.Datetime {
+func ParseDatetimeOrDefault(dateString string, defaultValue datetime.Datetime) datetime.Datetime {
 	dateLayout := "2006-01-02"
 	if len(dateString) < 1 {
 		return defaultValue
@@ -14,5 +14,17 @@ func ParseDatetime(dateString string, defaultValue datetime.Datetime) datetime.D
 		panic(err)
 	} else {
 		return datetime.Datetime{Year: t.Year(), Month: int(t.Month()), Day: t.Day()}
+	}
+}
+
+func ParseDatetime(dateString string) *datetime.Datetime {
+	dateLayout := "2006-01-02"
+	if len(dateString) < 1 {
+		return nil
+	}
+	if t, err := time.Parse(dateLayout, dateString); err != nil {
+		return nil
+	} else {
+		return &datetime.Datetime{Year: t.Year(), Month: int(t.Month()), Day: t.Day()}
 	}
 }
