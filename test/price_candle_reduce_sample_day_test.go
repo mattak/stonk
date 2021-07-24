@@ -2,7 +2,7 @@ package test
 
 import (
 	"github.com/mattak/stonk/pkg/price"
-	"github.com/piquette/finance-go/datetime"
+	"github.com/mattak/stonk/pkg/util"
 	"github.com/stretchr/testify/assert"
 	"math/big"
 	"testing"
@@ -17,7 +17,7 @@ func TestReduceSampleDay(t *testing.T) {
 	t.Run("1 point", func(t *testing.T) {
 		pcs := price.PriceCandles{
 			price.PriceCandle{
-				Date:   datetime.Datetime{Year: 2020, Month: 1, Day: 1},
+				Date:   util.NewDatetimeUTC(2020, 1, 1),
 				Open:   big.NewFloat(2.0),
 				Close:  big.NewFloat(4.0),
 				High:   big.NewFloat(8.0),
@@ -36,7 +36,7 @@ func TestReduceSampleDay(t *testing.T) {
 	t.Run("2 point: simple add", func(t *testing.T) {
 		pcs := price.PriceCandles{
 			price.PriceCandle{
-				Date:   datetime.Datetime{Year: 2020, Month: 1, Day: 1},
+				Date:   util.NewDatetimeUTC(2020, 1, 1),
 				Open:   big.NewFloat(2.0),
 				Close:  big.NewFloat(4.0),
 				High:   big.NewFloat(4.0),
@@ -44,7 +44,7 @@ func TestReduceSampleDay(t *testing.T) {
 				Volume: int64(1),
 			},
 			price.PriceCandle{
-				Date:   datetime.Datetime{Year: 2020, Month: 1, Day: 2},
+				Date:   util.NewDatetimeUTC(2020, 1, 2),
 				Open:   big.NewFloat(4.0),
 				Close:  big.NewFloat(8.0),
 				High:   big.NewFloat(8.0),
@@ -69,7 +69,7 @@ func TestReduceSampleDay(t *testing.T) {
 	t.Run("2 point: sparse day", func(t *testing.T) {
 		pcs := price.PriceCandles{
 			price.PriceCandle{
-				Date:   datetime.Datetime{Year: 2020, Month: 1, Day: 1},
+				Date:   util.NewDatetimeUTC(2020, 1, 1),
 				Open:   big.NewFloat(2.0),
 				Close:  big.NewFloat(4.0),
 				High:   big.NewFloat(4.0),
@@ -77,7 +77,7 @@ func TestReduceSampleDay(t *testing.T) {
 				Volume: int64(1),
 			},
 			price.PriceCandle{
-				Date:   datetime.Datetime{Year: 2020, Month: 1, Day: 3},
+				Date:   util.NewDatetimeUTC(2020, 1, 3),
 				Open:   big.NewFloat(4.0),
 				Close:  big.NewFloat(8.0),
 				High:   big.NewFloat(8.0),

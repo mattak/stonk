@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"github.com/mattak/stonk/pkg/price"
 	"github.com/mattak/stonk/pkg/util"
-	"github.com/piquette/finance-go/datetime"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"strings"
-	"time"
 )
 
 var (
@@ -46,12 +44,11 @@ func runCommandPrice(cmd *cobra.Command, args []string) {
 
 	params := util.CreateChartParamByRangeType(tickerSymbol, *rangeType)
 	if argumentStartDate != "" {
-		startDatetime := util.ParseDatetimeOrDefault(argumentStartDate, datetime.Datetime{Year: 2000, Month: 01, Day: 01})
+		startDatetime := util.ParseDatetimeOrDefault(argumentStartDate, util.NewDatetimeUTC(2000, 1, 1))
 		params.Start = &startDatetime
 	}
 	if argumentEndDate != "" {
-		t := time.Now()
-		endDatetime := util.ParseDatetimeOrDefault(argumentEndDate, datetime.Datetime{Year: t.Year(), Month: int(t.Month()), Day: t.Day()})
+		endDatetime := util.ParseDatetimeOrDefault(argumentEndDate, util.NowDatetimeUTC())
 		params.End = &endDatetime
 	}
 

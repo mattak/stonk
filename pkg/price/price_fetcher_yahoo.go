@@ -51,10 +51,10 @@ func fetchYahooPriceCandlesWithoutRetry(params *chart.Params) (PriceCandles, err
 
 	for iter.Next() {
 		t := time.Unix(int64(iter.Bar().Timestamp), 0)
-		date := datetime.Datetime{Year: t.Year(), Month: int(t.Month()), Day: t.Day()}
+		date := datetime.New(&t)
 		bar := iter.Bar()
 		candle := PriceCandle{
-			Date:   date,
+			Date:   *date,
 			Open:   bar.Open.BigFloat(),
 			Close:  bar.Close.BigFloat(),
 			High:   bar.High.BigFloat(),

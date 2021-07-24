@@ -74,19 +74,11 @@ func (r RangeType) GetRangeSeconds() int64 {
 
 func (r RangeType) GetRangeDatetime(t time.Time) (datetime.Datetime, datetime.Datetime) {
 	fromSeconds, toSeconds := r.GetUnixTimeRangeTo(t)
-	fromTime := time.Unix(fromSeconds, 0)
-	toTime := time.Unix(toSeconds, 0)
+	fromTime := time.Unix(fromSeconds, 0).UTC()
+	toTime := time.Unix(toSeconds, 0).UTC()
 
-	fromDatetime := datetime.Datetime{
-		Day:   fromTime.Day(),
-		Month: int(fromTime.Month()),
-		Year:  fromTime.Year(),
-	}
-	toDatetime := datetime.Datetime{
-		Day:   toTime.Day(),
-		Month: int(toTime.Month()),
-		Year:  toTime.Year(),
-	}
+	fromDatetime := *datetime.New(&fromTime)
+	toDatetime := *datetime.New(&toTime)
 	return fromDatetime, toDatetime
 }
 

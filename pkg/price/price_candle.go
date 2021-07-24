@@ -111,12 +111,8 @@ func (pcs PriceCandles) ReduceSampleByNextDate(nextDate func(curr time.Time) tim
 			continue
 		}
 
-		startDatetime := datetime.Datetime{
-			Year:  current.Year(),
-			Month: int(current.Month()),
-			Day:   current.Day(),
-		}
-		candle := pcs.SummarizeRange(startDatetime, startIndex, endIndex)
+		startDatetime := datetime.New(&current)
+		candle := pcs.SummarizeRange(*startDatetime, startIndex, endIndex)
 		candles = append(candles, candle)
 
 		current = next
