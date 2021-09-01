@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"github.com/gocolly/colly"
 	"github.com/mattak/stonk/pkg/util"
+	"math"
 	"os"
 	"regexp"
+	"time"
 )
 
 var (
@@ -63,7 +65,9 @@ func FetchYahooKabuSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 			url := fmt.Sprintf("https://info.finance.yahoo.co.jp/ranking/?kd=4&tm=d&vl=a&mk=1&p=%d", page)
 			err := e.Request.Visit(url)
 			if err != nil {
-				panic(err)
+				fmt.Fprintln(os.Stderr, "Request failed: ", err, url)
+			} else {
+
 			}
 		} else {
 			symbolMapChannel <- symbolMap
@@ -74,15 +78,22 @@ func FetchYahooKabuSymbols(symbolMapChannel chan map[string]SymbolInfo) {
 		fmt.Fprintln(os.Stderr, "Visiting", r.URL.String())
 	})
 
-	c.OnResponse(func(r *colly.Response) {
-		fmt.Fprintln(os.Stderr, "Result", r.StatusCode)
-
-		if r.StatusCode != 200 {
+	c.OnError(func(r *colly.Response, err error) {
+		if r != nil && r.StatusCode >= 500 {
 			if retryCount < retryLimit {
 				retryCount++
+				waitTimeCount := time.Duration(math.Pow(2, float64(retryCount)))
 				fmt.Fprintln(os.Stderr, "Retry", retryCount)
+				time.Sleep(time.Second * waitTimeCount)
 				r.Request.Retry()
 			}
+		}
+	})
+
+	c.OnResponse(func(r *colly.Response) {
+		fmt.Fprintln(os.Stderr, "Result", r.StatusCode)
+		if r.StatusCode == 200 {
+			retryCount = 0
 		}
 	})
 
